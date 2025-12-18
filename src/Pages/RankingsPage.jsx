@@ -3,16 +3,64 @@ import { Col, Container, Row, Table, Form, Button } from "react-bootstrap";
 import { useEffect, useState } from "react";
 import { callApi } from "../CallApi/CallApi";
 
+// Helper 1: Fetches and displays username for a given ID
+const UserLabel = ({ userId }) => {
+    const [username, setUsername] = useState(`ID: ${userId}`);
+
+    useEffect(() => {
+        if (!userId) return;
+
+        callApi({
+            endPoint: `/user/${userId}`,
+            method: "GET"
+        }).then(res => {
+            if (res.data?.userDTO?.username) {
+                setUsername(res.data.userDTO.username);
+            }
+        }).catch(() => {
+            setUsername(`User #${userId}`);
+        });
+    }, [userId]);
+
+    return <span>{username}</span>;
+};
+
+// Helper 2: Fetches and displays the "base" category for a ranking type ID
+const RankingTypeLabel = ({ rankingTypeId }) => {
+    const [categoryName, setCategoryName] = useState(`Type ${rankingTypeId}`);
+
+    useEffect(() => {
+        if (!rankingTypeId) return;
+
+        callApi({
+            endPoint: `/ranking-type/${rankingTypeId}`,
+            method: "GET"
+        }).then(res => {
+            // Extract "base" from the response structure
+            if (res.data?.rankingTypeDTO?.base) {
+                setCategoryName(res.data.rankingTypeDTO.base);
+            }
+        }).catch(() => {
+            setCategoryName(`Type ${rankingTypeId}`);
+        });
+    }, [rankingTypeId]);
+
+    return (
+        <small className="fw-bold text-uppercase text-secondary border border-secondary rounded px-2 py-1">
+            {categoryName}
+        </small>
+    );
+};
+
 export default function RankingsPage() {
     const [rankings, setRankings] = useState([]);
 
-    // 1. New state for inputs
+    // Inputs state
     const [actorId, setActorId] = useState("");
     const [subjectId, setSubjectId] = useState("");
 
-    // 2. Refactored fetch logic to handle parameters
+    // Fetch logic
     const fetchRankings = () => {
-        // Convert empty strings to null so Axios/Backend ignores them
         const params = {
             actorId: actorId === "" ? null : actorId,
             subjectId: subjectId === "" ? null : subjectId
@@ -21,9 +69,8 @@ export default function RankingsPage() {
         callApi({
             endPoint: "/rank-event",
             method: "GET",
-            params: params // Uses the new params support we added
+            params: params
         }).then(res => {
-            // Handle cases where data might be null or empty
             setRankings(res.data?.rankEventDTOList || []);
         }).catch(err => {
             console.error(err);
@@ -31,7 +78,7 @@ export default function RankingsPage() {
         });
     };
 
-    // Load initial data (no filters) on page load
+    // Initial load
     useEffect(() => {
         fetchRankings();
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -49,7 +96,7 @@ export default function RankingsPage() {
                     </Col>
                 </Row>
 
-                {/* 3. New Filter Section */}
+                {/* Filter Section */}
                 <Row className="justify-content-center mb-4">
                     <Col lg={10} className="bg-white shadow-sm rounded p-4 border">
                         <Form>
@@ -109,10 +156,10 @@ export default function RankingsPage() {
                             {rankings.map((r, index) => (
                                 <tr key={r.id} className={index % 2 === 0 ? "bg-white" : "bg-light"}>
                                     <td className="fw-semibold text-dark py-3">
-                                        {r.actorId}
+                                        <UserLabel userId={r.actorId} />
                                     </td>
                                     <td className="text-secondary">
-                                        {r.subjectId}
+                                        <UserLabel userId={r.subjectId} />
                                     </td>
                                     <td className="fw-bold fs-5 text-primary">
                                         #{r.rank}
@@ -121,9 +168,8 @@ export default function RankingsPage() {
                                         {r.totalCandidates}
                                     </td>
                                     <td>
-                                        <small className="fw-bold text-uppercase text-secondary border border-secondary rounded px-2 py-1">
-                                            {r.rankingTypeId}
-                                        </small>
+                                        {/* Use new RankingTypeLabel component here */}
+                                        <RankingTypeLabel rankingTypeId={r.rankingTypeId} />
                                     </td>
                                 </tr>
                             ))}
