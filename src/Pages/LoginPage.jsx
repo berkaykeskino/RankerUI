@@ -1,6 +1,7 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Button, Col, Container, Form, Row } from "react-bootstrap";
 import { useState } from "react";
+import { Link } from "react-router-dom"; // Import Link
 import { callApi } from "../CallApi/CallApi";
 
 export default function LoginPage() {
@@ -8,11 +9,20 @@ export default function LoginPage() {
     const [password, setPassword] = useState("");
 
     const handleLogin = async () => {
-        await callApi({
-            endPoint: "/auth/login",
-            method: "POST",
-            body: { username, password }
-        });
+        try {
+            const res = await callApi({
+                endPoint: "/login",
+                method: "POST",
+                body: { username, password }
+            });
+
+            if (res.headers["x-header-token"]) {
+                localStorage.setItem("userToken", res.headers["x-header-token"]);
+                window.location.href = "/home-page";
+            }
+        } catch (err) {
+            alert("Login failed. Check your credentials.");
+        }
     };
 
     return (
@@ -35,7 +45,7 @@ export default function LoginPage() {
                             />
                         </Form.Group>
 
-                        <Form.Group className="mb-5" controlId="loginPassword">
+                        <Form.Group className="mb-4" controlId="loginPassword">
                             <Form.Label className="fw-semibold text-secondary">Password</Form.Label>
                             <Form.Control
                                 type="password"
@@ -49,11 +59,21 @@ export default function LoginPage() {
                         <Button
                             variant="primary"
                             size="lg"
-                            className="w-100 shadow-sm fw-bold"
+                            className="w-100 shadow-sm fw-bold mb-3"
                             onClick={handleLogin}
                         >
                             Sign In
                         </Button>
+
+                        {/* Navigation Link */}
+                        <div className="text-center">
+                            <p className="mb-0 text-muted">
+                                Don't have an account?{" "}
+                                <Link to="/signup" className="text-primary fw-bold text-decoration-none">
+                                    Sign Up
+                                </Link>
+                            </p>
+                        </div>
                     </Form>
                 </Col>
             </Row>
