@@ -4,7 +4,6 @@ import { useState } from "react";
 
 export default function NavigationBar() {
     // Mock User State: Replace this with your actual AuthContext later
-    // Set to null to see the "Login/Signup" view
     const [user, setUser] = useState({
         id: 4,
         username: "berkay_tester",
@@ -15,6 +14,7 @@ export default function NavigationBar() {
     const navigate = useNavigate();
 
     const handleLogout = () => {
+        // In a real app, clear localStorage here: localStorage.removeItem("userToken");
         setUser(null);
         navigate("/login");
     };
@@ -38,12 +38,20 @@ export default function NavigationBar() {
                         <Nav.Link as={Link} to="/rankings" active={location.pathname === "/rankings"}>
                             Global Rankings
                         </Nav.Link>
+
                         <Nav.Link as={Link} to="/rank-event" active={location.pathname === "/rank-event"}>
                             Create Ranking
                         </Nav.Link>
+
                         <Nav.Link as={Link} to="/user/posts" active={location.pathname === "/user/posts"}>
                             User Posts
                         </Nav.Link>
+
+                        <NavDropdown title="Friends" id="friends-nav-dropdown" active={location.pathname.includes("friend")}>
+                            <NavDropdown.Item as={Link} to="/my-friends">My Friends</NavDropdown.Item>
+                            <NavDropdown.Item as={Link} to="/add-friends">Find New Friends</NavDropdown.Item>
+                            <NavDropdown.Item as={Link} to="/friend-requests">Pending Requests</NavDropdown.Item>
+                        </NavDropdown>
                     </Nav>
 
                     {/* Right Side: User Profile */}
