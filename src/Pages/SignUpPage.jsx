@@ -1,21 +1,30 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Button, Col, Container, Form, Row } from "react-bootstrap";
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom"; // Import Link and useNavigate
 import { callApi } from "../CallApi/CallApi";
 
 export default function SignUpPage() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const navigate = useNavigate(); // Hook for navigation
 
     const handleSignup = async () => {
-        await callApi({
-            endPoint: "/user",
-            method: "POST",
-            body: { "userDTO": {
-                    username,
-                    password,
-                } }
-        });
+        try {
+            await callApi({
+                endPoint: "/user",
+                method: "POST",
+                body: { "userDTO": { username, password } }
+            });
+
+            // 1. Success Feedback
+            alert("Account created successfully! Please log in.");
+
+            // 2. Redirect to Login Page
+            navigate("/login");
+        } catch (error) {
+            alert("Failed to create account. Username might be taken.");
+        }
     };
 
     return (
@@ -38,7 +47,7 @@ export default function SignUpPage() {
                             />
                         </Form.Group>
 
-                        <Form.Group className="mb-5" controlId="formPassword">
+                        <Form.Group className="mb-4" controlId="formPassword">
                             <Form.Label className="fw-semibold text-secondary">Password</Form.Label>
                             <Form.Control
                                 type="password"
@@ -52,11 +61,21 @@ export default function SignUpPage() {
                         <Button
                             variant="primary"
                             size="lg"
-                            className="w-100 shadow-sm fw-bold"
+                            className="w-100 shadow-sm fw-bold mb-3"
                             onClick={handleSignup}
                         >
                             Create Account
                         </Button>
+
+                        {/* 3. Navigation Link */}
+                        <div className="text-center">
+                            <p className="mb-0 text-muted">
+                                Already have an account?{" "}
+                                <Link to="/login" className="text-primary fw-bold text-decoration-none">
+                                    Login
+                                </Link>
+                            </p>
+                        </div>
                     </Form>
                 </Col>
             </Row>
