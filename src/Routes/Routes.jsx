@@ -6,10 +6,13 @@ import UserPostsPage from "../Pages/UserPostsPage";
 import RankingsPage from "../Pages/RankingsPage";
 import SignUpPage from "../Pages/SignUpPage";
 import CreateRankEventPage from "../Pages/CreateRankEventPage";
+import AddFriendsPage from "../Pages/AddFriendsPage"; // <--- 1. IMPORT THIS
 import {ProtectedRoute} from "../Pages/ProtectedRoute";
+import PendingRequestsPage from "../Pages/PendingRequestsPage";
+import MyFriendsPage from "../Pages/MyFriendsPage";
 
 export const router = createBrowserRouter([
-    // Public Routes (Accessible without token)
+    // Public Routes
     {
         path: "/login",
         element: <LoginPage />
@@ -21,18 +24,20 @@ export const router = createBrowserRouter([
 
     // Protected Routes
     {
-        element: <ProtectedRoute />, // 1. Check Token
+        element: <ProtectedRoute />,
         children: [
             {
                 path: "/",
-                element: <App />, // 2. Render Layout (Navbar)
+                element: <App />,
                 children: [
-                    // 3. Render Pages
-                    { path: "", element: <Navigate to="/home-page" replace /> }, // Default redirect
+                    { path: "", element: <Navigate to="/home-page" replace /> },
                     { path: "home-page", element: <HomePage /> },
                     { path: "user/posts", element: <UserPostsPage /> },
                     { path: "rankings", element: <RankingsPage /> },
-                    { path: "rank-event", element: <CreateRankEventPage /> }
+                    { path: "rank-event", element: <CreateRankEventPage /> },
+                    { path: "add-friends", element: <AddFriendsPage /> },
+                    { path: "friend-requests", element: <PendingRequestsPage /> },
+                    { path: "my-friends", element: <MyFriendsPage /> },
                 ]
             }
         ]
